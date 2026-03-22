@@ -40,7 +40,11 @@
       <h2>Dashboard</h2>
       <button class="submit" onclick="loadDashboard()">Refresh Dashboard</button>
       <pre id="dashboard-output">No dashboard data loaded yet.</pre>
-      <div class="todo">TODO Peter: make dashboard prettier and summarize counts/totals.</div>
+      <div class="todo">
+        TODO Peter:
+        - make dashboard look better
+        - show totals for chores, expenses, groceries, and notifications
+      </div>
     </section>
 
     <section id="auth-tab" class="hidden">
@@ -60,7 +64,12 @@
       </form>
 
       <pre id="auth-output">Auth results will show here.</pre>
-      <div class="todo">TODO Joshua: add real auth, group joining, and better user flow.</div>
+      <div class="todo">
+        TODO Joshua:
+        - finish register and login flow
+        - add create group button/form if needed
+        - add join group button/form if needed
+      </div>
     </section>
 
     <section id="chores-tab" class="hidden">
@@ -78,7 +87,13 @@
       </form>
       <button class="submit" onclick="loadChores()">Load Chores</button>
       <ul id="chore-list"></ul>
-      <div class="todo">TODO Bethlehem: add edit/delete buttons and rotating assignment.</div>
+      <div class="todo">
+        TODO Bethlehem:
+        - add edit chore button
+        - add delete chore button
+        - add assign/update status actions
+        - optional: rotating/random chore assignment
+      </div>
     </section>
 
     <section id="expenses-tab" class="hidden">
@@ -98,7 +113,13 @@
       <button class="submit" onclick="loadExpenseSummary()">Load Expense Summary</button>
       <ul id="expense-list"></ul>
       <pre id="expense-summary">Expense summary will show here.</pre>
-      <div class="todo">TODO Jaime: add split logic and balance calculations.</div>
+      <div class="todo">
+        TODO Jaime:
+        - make split logic work
+        - calculate who owes what
+        - clean up expense summary output
+        - do final integration at the end
+      </div>
     </section>
 
     <section id="groceries-tab" class="hidden">
@@ -110,7 +131,12 @@
       </form>
       <button class="submit" onclick="loadGroceries()">Load Groceries</button>
       <ul id="grocery-list"></ul>
-      <div class="todo">TODO Justin: add purchased toggle and better grocery management.</div>
+      <div class="todo">
+        TODO Justin:
+        - add edit grocery button
+        - add delete grocery button
+        - add purchased toggle
+      </div>
     </section>
 
     <section id="notifications-tab" class="hidden">
@@ -126,7 +152,11 @@
       </form>
       <button class="submit" onclick="loadNotifications()">Load Notifications</button>
       <ul id="notification-list"></ul>
-      <div class="todo">TODO Justin/Peter: connect overdue chores and unpaid expenses to nudges.</div>
+      <div class="todo">
+        TODO Justin:
+        - make reminders/notifications work
+        - connect reminders to overdue chores or unpaid expenses if possible
+      </div>
     </section>
   </main>
 

@@ -8,7 +8,11 @@ const PORT = 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database setup in the same file to keep the project simple.
+// ===================================
+// DATABASE SETUP
+// Keeping database setup in one file
+// so the project stays simple.
+// ===================================
 const db = new sqlite3.Database(path.join(__dirname, 'roommate.db'));
 
 db.serialize(() => {
@@ -51,7 +55,45 @@ db.serialize(() => {
   )`);
 });
 
-// ---------- AUTH / GROUP ROUTES ----------
+// ===================================
+// TEAM TODO NOTES
+// ===================================
+
+// TODO Joshua:
+// - finish register logic
+// - finish login logic
+// - add create group logic
+// - add join group logic
+// - make sure users only see their own group data
+
+// TODO Bethlehem:
+// - add chore edit logic
+// - add chore delete logic
+// - add assign chore logic
+// - add update chore status logic
+// - optional: add rotating/random chore assignment
+
+// TODO Jaime:
+// - add expense split logic
+// - add balance calculation logic
+// - make expense summary cleaner
+// - do final integration and make sure the full app still runs
+
+// TODO Justin:
+// - add grocery edit logic
+// - add grocery delete logic
+// - add purchased toggle logic
+// - add notifications/reminders logic
+
+// TODO Peter:
+// - make dashboard summary better
+// - show totals for chores, expenses, groceries, and notifications
+// - help with final cleanup and bug fixing
+
+// ===================================
+// AUTH / GROUP ROUTES
+// Joshua
+// ===================================
 app.post('/api/register', (req, res) => {
   const { name, email, password, group_name } = req.body;
   const sql = 'INSERT INTO users (name, email, password, group_name) VALUES (?, ?, ?, ?)';
@@ -80,9 +122,10 @@ app.get('/api/users', (req, res) => {
   });
 });
 
-// TODO: Joshua - improve auth security, add password hashing, group join codes, session handling.
-
-// ---------- CHORE ROUTES ----------
+// ===================================
+// CHORE ROUTES
+// Bethlehem
+// ===================================
 app.get('/api/chores', (req, res) => {
   db.all('SELECT * FROM chores ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -117,9 +160,10 @@ app.delete('/api/chores/:id', (req, res) => {
   });
 });
 
-// TODO: Bethlehem - add random/rotating assignment logic and overdue detection.
-
-// ---------- EXPENSE ROUTES ----------
+// ===================================
+// EXPENSE ROUTES
+// Jaime
+// ===================================
 app.get('/api/expenses', (req, res) => {
   db.all('SELECT * FROM expenses ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -163,9 +207,10 @@ app.get('/api/expenses-summary', (req, res) => {
   });
 });
 
-// TODO: Jaime - add automatic split calculation and roommate balances.
-
-// ---------- GROCERY ROUTES ----------
+// ===================================
+// GROCERY ROUTES
+// Justin
+// ===================================
 app.get('/api/groceries', (req, res) => {
   db.all('SELECT * FROM groceries ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -200,9 +245,10 @@ app.delete('/api/groceries/:id', (req, res) => {
   });
 });
 
-// TODO: Justin - add filters and purchased history.
-
-// ---------- NOTIFICATION / DASHBOARD ROUTES ----------
+// ===================================
+// NOTIFICATION ROUTES
+// Justin
+// ===================================
 app.get('/api/notifications', (req, res) => {
   db.all('SELECT * FROM notifications ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -218,6 +264,10 @@ app.post('/api/notifications', (req, res) => {
   });
 });
 
+// ===================================
+// DASHBOARD ROUTES
+// Peter
+// ===================================
 app.get('/api/dashboard', (req, res) => {
   const dashboard = {};
 
@@ -242,8 +292,6 @@ app.get('/api/dashboard', (req, res) => {
     });
   });
 });
-
-// TODO: Peter - improve dashboard calculations and final integration cleanup.
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);

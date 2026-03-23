@@ -245,6 +245,28 @@ app.delete('/api/groceries/:id', (req, res) => {
   });
 });
 
+// Toggle grocery item as purchased
+app.patch('/api/groceries/:id/purchase', (req, res) => {
+  const { purchased } = req.body;
+
+  const sql = 'UPDATE groceries SET purchased = ? WHERE id = ?';
+  db.run(sql, [purchased ? 1 : 0, req.params.id], function (err) {
+    if (err) return res.status(400).json({ error: err.message });
+
+    // Create notification when item is purchased
+    if (purchased) {
+      const message = 'A grocery item was marked as purchased.';
+      db.run(
+        'INSERT INTO notifications (message, type) VALUES (?, ?)',
+        [message, 'success']
+        );
+    }
+
+    res.json({ message: 'Grocery purchase status updated' });
+  });
+});
+    
+
 // ===================================
 // NOTIFICATION ROUTES
 // Justin
@@ -261,6 +283,28 @@ app.post('/api/notifications', (req, res) => {
   db.run('INSERT INTO notifications (message, type) VALUES (?, ?)', [message, type || 'info'], function (err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Notification created', id: this.lastID });
+  });
+});
+
+// Generate grocery reminders for unpurchased items
+app.post('/api/nitifications/grocery-reminders', (req, res) => {
+  const sql = 'SELECT * FROM groceries WHERE purchased = 0';
+
+  db.all(sql, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    rows.forEach(item => {
+      const message = 'Reminder: ${item.item_name} is still not purchased.';
+      db.run(
+        'INSERT INTO notifications (message, type) VALUES (?, ?)',
+        [message, 'warning']
+      );
+    });
+
+    res.json({
+      message: 'Grocery reminders generated',
+      count: rows.length
+    });
   });
 });
 

@@ -357,3 +357,67 @@ app.get('/api/dashboard', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+// ======================
+// CHORES FEATURE (Bethlehem)
+// ======================
+
+let chores = [];
+
+app.post('/api/chores', (req, res) => {
+    const { name, assignedTo } = req.body;
+
+    const chore = {
+        id: Date.now(),
+        name,
+        assignedTo,
+        completed: false
+    };
+
+    chores.push(chore);
+    res.json(chore);
+});
+
+app.get('/api/chores', (req, res) => {
+    res.json(chores);
+});
+
+app.put('/api/chores/:id', (req, res) => {
+    const chore = chores.find(c => c.id == req.params.id);
+
+    if (chore) {
+        const { name, assignedTo, completed } = req.body;
+
+        if (name !== undefined) chore.name = name;
+        if (assignedTo !== undefined) chore.assignedTo = assignedTo;
+        if (completed !== undefined) chore.completed = completed;
+
+        res.json(chore);
+    } else {
+        res.status(404).send("Chore not found");
+    }
+});
+
+app.delete('/api/chores/:id', (req, res) => {
+    chores = chores.filter(c => c.id != req.params.id);
+    res.send("Chore deleted");
+});
+
+app.post('/api/chores/random', (req, res) => {
+    const { name, roommates } = req.body;
+
+    if (!roommates || roommates.length === 0) {
+        return res.status(400).send("No roommates provided");
+    }
+
+    const randomPerson = roommates[Math.floor(Math.random() * roommates.length)];
+
+    const chore = {
+        id: Date.now(),
+        name,
+        assignedTo: randomPerson,
+        completed: false
+    };
+
+    chores.push(chore);
+    res.json(chore);
+});

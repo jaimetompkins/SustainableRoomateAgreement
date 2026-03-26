@@ -387,86 +387,100 @@
 }
   </script>
 </body>
-</html>
-<h2>Chores</h2>
+<section id="chores-tab">
+  <h2>Chores</h2>
 
-<input id="choreName" placeholder="Chore name">
-<input id="assignedTo" placeholder="Assigned to">
-<button onclick="addChore()">Add Chore</button>
+  <form id="addChoreForm">
+    <input id="choreName" placeholder="Chore name" required>
+    <input id="assignedTo" placeholder="Assigned to">
+    <button type="submit">Add Chore</button>
+  </form>
 
-<br><br>
+  <br>
 
-<input id="editId" placeholder="Chore ID to edit">
-<input id="newName" placeholder="New name">
-<input id="newAssigned" placeholder="New assigned person">
-<button onclick="editChore()">Edit Chore</button>
+  <form id="editChoreForm">
+    <input id="editId" placeholder="Chore ID to edit" required>
+    <input id="newName" placeholder="New name">
+    <input id="newAssigned" placeholder="New assigned person">
+    <button type="submit">Edit Chore</button>
+  </form>
 
-<ul id="choreList"></ul>
-async function addChore() {
-    const name = document.getElementById('choreName').value;
-    const assignedTo = document.getElementById('assignedTo').value;
+  <ul id="choreList"></ul>
 
-    await fetch('/api/chores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, assignedTo })
-    });
+  <script>
+    async function loadChores() {
+      try {
+        const res = await fetch('/api/chores');
+        const chores = await res.json();
+        const list = document.getElementById('choreList');
+        list.innerHTML = '';
 
-    loadChores();
-}
-
-async function loadChores() {
-    const res = await fetch('/api/chores');
-    const chores = await res.json();
-
-    const list = document.getElementById('choreList');
-    list.innerHTML = '';
-
-    chores.forEach(chore => {
-        const li = document.createElement('li');
-
-        li.innerHTML = `
-            ID: ${chore.id} | ${chore.name} - ${chore.assignedTo}
+        chores.forEach(chore => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            ID: ${chore.id} | ${chore.name} - ${chore.assignedTo || 'Unassigned'}
             (${chore.completed ? "✅ Done" : "❌ Pending"})
             <button onclick="completeChore(${chore.id})">Complete</button>
             <button onclick="deleteChore(${chore.id})">Delete</button>
-        `;
+          `;
+          list.appendChild(li);
+        });
+      } catch (err) {
+        console.error('Error loading chores:', err);
+      }
+    }
 
-        list.appendChild(li);
-    });
-}
+    async function addChore(event) {
+      event.preventDefault();
+      const name = document.getElementById('choreName').value;
+      const assignedTo = document.getElementById('assignedTo').value;
 
-async function completeChore(id) {
-    await fetch(`/api/chores/${id}`, {
-        method: 'PUT',
+      await fetch('/api/chores', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed: true })
-    });
+        body: JSON.stringify({ name, assignedTo })
+      });
 
-    loadChores();
-}
+      document.getElementById('addChoreForm').reset();
+      loadChores();
+    }
 
-async function deleteChore(id) {
-    await fetch(`/api/chores/${id}`, {
-        method: 'DELETE'
-    });
+    async function editChore(event) {
+      event.preventDefault();
+      const id = document.getElementById('editId').value;
+      const name = document.getElementById('newName').value;
+      const assignedTo = document.getElementById('newAssigned').value;
 
-    loadChores();
-}
-
-async function editChore() {
-    const id = document.getElementById('editId').value;
-    const name = document.getElementById('newName').value;
-    const assignedTo = document.getElementById('newAssigned').value;
-
-    await fetch(`/api/chores/${id}`, {
+      await fetch(`/api/chores/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, assignedTo })
-    });
+      });
 
+      document.getElementById('editChoreForm').reset();
+      loadChores();
+    }
+
+    async function completeChore(id) {
+      await fetch(`/api/chores/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: true })
+      });
+      loadChores();
+    }
+
+    async function deleteChore(id) {
+      await fetch(`/api/chores/${id}`, { method: 'DELETE' });
+      loadChores();
+    }
+
+    // Attach event listeners
+    document.getElementById('addChoreForm').addEventListener('submit', addChore);
+    document.getElementById('editChoreForm').addEventListener('submit', editChore);
+
+    // Load chores on page load
     loadChores();
-}
+  </script>
+</section>
 
-// LOAD ON START
-loadChores();

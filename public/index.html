@@ -5,6 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Minimal Roommate App</title>
   <style>
+    .dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.card {
+  background: #eef4fb;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+}
+
+.card p {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #1f4f82;
+}
     body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; color: #222; }
     header { background: #1f4f82; color: white; padding: 16px; }
     nav { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
@@ -37,40 +62,83 @@
 
   <main>
     <section id="dashboard-tab">
-      <h2>Dashboard</h2>
-      <button class="submit" onclick="loadDashboard()">Refresh Dashboard</button>
-      <pre id="dashboard-output">No dashboard data loaded yet.</pre>
-      <div class="todo">
-        TODO Peter:
-        - make dashboard look better
-        - show totals for chores, expenses, groceries, and notifications
-      </div>
-    </section>
+  <h2>Dashboard</h2>
+  <p class="small">Quick summary of roommate activity.</p>
+  <button class="submit" onclick="loadDashboard()">Refresh Dashboard</button>
 
-    <section id="auth-tab" class="hidden">
-      <h2>Register / Login</h2>
-      <form onsubmit="registerUser(event)">
-        <input id="register-name" placeholder="Name" required />
-        <input id="register-email" placeholder="Email" required />
-        <input id="register-password" placeholder="Password" required />
-        <input id="register-group" placeholder="Group name" />
-        <button class="submit" type="submit">Register</button>
-      </form>
+  <div id="dashboard-summary" class="dashboard-grid">
+    <div class="card">
+      <h3>Total Chores</h3>
+      <p id="total-chores">0</p>
+    </div>
+    <div class="card">
+      <h3>Completed</h3>
+      <p id="completed-chores">0</p>
+    </div>
+    <div class="card">
+      <h3>Pending</h3>
+      <p id="pending-chores">0</p>
+    </div>
+    <div class="card">
+      <h3>Expenses</h3>
+      <p id="total-expenses">0</p>
+    </div>
+    <div class="card">
+      <h3>Total Amount</h3>
+      <p id="dashboard-expense-amount">$0.00</p>
+    </div>
+    <div class="card">
+      <h3>Groceries</h3>
+      <p id="total-groceries">0</p>
+    </div>
+    <div class="card">
+      <h3>Purchased</h3>
+      <p id="purchased-groceries">0</p>
+    </div>
+    <div class="card">
+      <h3>Notifications</h3>
+      <p id="total-notifications">0</p>
+    </div>
+  </div>
 
-      <form onsubmit="loginUser(event)">
-        <input id="login-email" placeholder="Email" required />
-        <input id="login-password" placeholder="Password" required />
-        <button class="submit" type="submit">Login</button>
-      </form>
+  <h3>Recent Chores</h3>
+  <ul id="dashboard-chores"></ul>
 
-      <pre id="auth-output">Auth results will show here.</pre>
-      <div class="todo">
-        TODO Joshua:
-        - finish register and login flow
-        - add create group button/form if needed
-        - add join group button/form if needed
-      </div>
-    </section>
+  <h3>Recent Expenses</h3>
+  <ul id="dashboard-expenses"></ul>
+
+  <h3>Recent Groceries</h3>
+  <ul id="dashboard-groceries"></ul>
+
+  <h3>Recent Notifications</h3>
+  <ul id="dashboard-notifications"></ul>
+</section>
+<section id="auth-tab" class="hidden">
+  <h2>Auth</h2>
+
+  <form onsubmit="registerUser(event)">
+    <input id="register-name" placeholder="Name" required />
+    <input id="register-email" placeholder="Email" type="email" required />
+    <input id="register-password" placeholder="Password" type="password" required />
+    <input id="register-group" placeholder="Group name" />
+    <button class="submit" type="submit">Register</button>
+  </form>
+
+  <form onsubmit="loginUser(event)">
+    <input id="login-email" placeholder="Email" type="email" required />
+    <input id="login-password" placeholder="Password" type="password" required />
+    <button class="submit" type="submit">Login</button>
+  </form>
+
+  <pre id="auth-output">Auth output will show here.</pre>
+
+  <div class="todo">
+    TODO Joshua:
+    - finish register and login flow
+    - add create group button/form if needed
+    - add join group button/form if needed
+  </div>
+</section>
 
     <section id="chores-tab" class="hidden">
       <h2>Chores</h2>
@@ -289,9 +357,34 @@
     }
 
     async function loadDashboard() {
-      const dashboard = await request('/api/dashboard');
-      document.getElementById('dashboard-output').textContent = JSON.stringify(dashboard, null, 2);
-    }
+  const dashboard = await request('/api/dashboard');
+  const summary = dashboard.summary || {};
+
+  document.getElementById('total-chores').textContent = summary.totalChores || 0;
+  document.getElementById('completed-chores').textContent = summary.completedChores || 0;
+  document.getElementById('pending-chores').textContent = summary.pendingChores || 0;
+  document.getElementById('total-expenses').textContent = summary.totalExpenses || 0;
+  ddocument.getElementById('dashboard-expense-amount').textContent = `$${Number(summary.totalExpenseAmount || 0).toFixed(2)}`;
+  document.getElementById('total-groceries').textContent = summary.totalGroceries || 0;
+  document.getElementById('purchased-groceries').textContent = summary.purchasedGroceries || 0;
+  document.getElementById('total-notifications').textContent = summary.totalNotifications || 0;
+
+  document.getElementById('dashboard-chores').innerHTML = (dashboard.chores || [])
+    .map(chore => `<li><strong>${chore.title}</strong> - ${chore.status}</li>`)
+    .join('');
+
+  document.getElementById('dashboard-expenses').innerHTML = (dashboard.expenses || [])
+    .map(expense => `<li><strong>${expense.title}</strong> - $${expense.amount}</li>`)
+    .join('');
+
+  document.getElementById('dashboard-groceries').innerHTML = (dashboard.groceries || [])
+    .map(item => `<li><strong>${item.item_name}</strong> - ${item.quantity || 'No quantity'}</li>`)
+    .join('');
+
+  document.getElementById('dashboard-notifications').innerHTML = (dashboard.notifications || [])
+    .map(note => `<li><strong>${note.type}</strong> - ${note.message}</li>`)
+    .join('');
+}
   </script>
 </body>
 </html>

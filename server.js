@@ -313,30 +313,48 @@ app.post('/api/nitifications/grocery-reminders', (req, res) => {
 // Peter
 // ===================================
 app.get('/api/dashboard', (req, res) => {
-  const dashboard = {};
+  const dashboard = {
+    summary: {}
+  };
 
-  db.all('SELECT * FROM chores ORDER BY id DESC LIMIT 5', [], (err, chores) => {
+  db.all('SELECT * FROM chores ORDER BY id DESC', [], (err, chores) => {
     if (err) return res.status(500).json({ error: err.message });
-    dashboard.chores = chores;
 
-    db.all('SELECT * FROM expenses ORDER BY id DESC LIMIT 5', [], (err2, expenses) => {
+    dashboard.summary.totalChores = chores.length;
+    dashboard.summary.completedChores = chores.filter(c => c.status === 'Completed').length;
+    dashboard.summary.pendingChores = chores.filter(c => c.status === 'Pending').length;
+    dashboard.summary.inProgressChores = chores.filter(c => c.status === 'In Progress').length;
+    dashboard.chores = chores.slice(0, 5);
+
+    db.all('SELECT * FROM expenses ORDER BY id DESC', [], (err2, expenses) => {
       if (err2) return res.status(500).json({ error: err2.message });
-      dashboard.expenses = expenses;
 
-      db.all('SELECT * FROM groceries ORDER BY id DESC LIMIT 5', [], (err3, groceries) => {
+      dashboard.summary.totalExpenses = expenses.length;
+      dashboard.summary.totalExpenseAmount = expenses.reduce(
+        (sum, expense) => sum + Number(expense.amount || 0),
+        0
+      );
+      dashboard.expenses = expenses.slice(0, 5);
+
+      db.all('SELECT * FROM groceries ORDER BY id DESC', [], (err3, groceries) => {
         if (err3) return res.status(500).json({ error: err3.message });
-        dashboard.groceries = groceries;
 
-        db.all('SELECT * FROM notifications ORDER BY id DESC LIMIT 5', [], (err4, notifications) => {
+        dashboard.summary.totalGroceries = groceries.length;
+        dashboard.summary.purchasedGroceries = groceries.filter(g => g.purchased === 1).length;
+        dashboard.groceries = groceries.slice(0, 5);
+
+        db.all('SELECT * FROM notifications ORDER BY id DESC', [], (err4, notifications) => {
           if (err4) return res.status(500).json({ error: err4.message });
-          dashboard.notifications = notifications;
+
+          dashboard.summary.totalNotifications = notifications.length;
+          dashboard.notifications = notifications.slice(0, 5);
+
           res.json(dashboard);
         });
       });
     });
   });
 });
-
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

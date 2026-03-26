@@ -27,7 +27,7 @@
     <p class="small">Minimal starter framework: all frontend in one file, all backend in one file.</p>
     <nav>
       <button onclick="showTab('dashboard')">Dashboard</button>
-      <button onclick="showTab('auth')">Auth</button>
+      <button onclick="showTab('auth')">Auth / Household</button>
       <button onclick="showTab('chores')">Chores</button>
       <button onclick="showTab('expenses')">Expenses</button>
       <button onclick="showTab('groceries')">Groceries</button>
@@ -48,28 +48,41 @@
     </section>
 
     <section id="auth-tab" class="hidden">
-      <h2>Register / Login</h2>
-      <form onsubmit="registerUser(event)">
-        <input id="register-name" placeholder="Name" required />
-        <input id="register-email" placeholder="Email" required />
-        <input id="register-password" placeholder="Password" required />
-        <input id="register-group" placeholder="Group name" />
-        <button class="submit" type="submit">Register</button>
-      </form>
+      <h2>Authentication & Household</h2>
+      
+      <div id="unauth-view">
+        <form onsubmit="registerUser(event)">
+          <h3>Register</h3>
+          <input id="register-name" placeholder="Name" required />
+          <input id="register-email" placeholder="Email" type="email" required />
+          <input id="register-password" placeholder="Password" type="password" required />
+          <button class="submit" type="submit">Register</button>
+        </form>
 
-      <form onsubmit="loginUser(event)">
-        <input id="login-email" placeholder="Email" required />
-        <input id="login-password" placeholder="Password" required />
-        <button class="submit" type="submit">Login</button>
-      </form>
-
-      <pre id="auth-output">Auth results will show here.</pre>
-      <div class="todo">
-        TODO Joshua:
-        - finish register and login flow
-        - add create group button/form if needed
-        - add join group button/form if needed
+        <form onsubmit="loginUser(event)" style="margin-top: 20px;">
+          <h3>Login</h3>
+          <input id="login-email" placeholder="Email" type="email" required />
+          <input id="login-password" placeholder="Password" type="password" required />
+          <button class="submit" type="submit">Login</button>
+        </form>
       </div>
+
+      <div id="auth-view" class="hidden">
+        <h3 id="welcome-msg"></h3>
+        <button class="submit" onclick="logoutUser()">Logout</button>
+        
+        <div id="no-group-view" class="hidden" style="margin-top: 20px; padding: 15px; background: #eef; border-radius: 8px;">
+          <h4>You are not in a household yet!</h4>
+          <button class="submit" onclick="createGroup()">Create New Household</button>
+          <p>OR</p>
+          <form onsubmit="joinGroup(event)">
+            <input id="join-group-code" placeholder="Enter Invite Code (e.g. ROOM-1234)" required />
+            <button class="submit" type="submit">Join</button>
+          </form>
+        </div>
+      </div>
+
+      <pre id="auth-output" style="margin-top: 20px;">Auth results will show here.</pre>
     </section>
 
     <section id="chores-tab" class="hidden">
@@ -175,6 +188,35 @@
       return response.json();
     }
 
+    // ===================================
+    // JOSHUA'S AUTH & GROUP LOGIC
+    // ===================================
+    
+    // Check if user is logged in on page load
+    window.addEventListener('DOMContentLoaded', checkAuth);
+
+    function checkAuth() {
+      const user = JSON.parse(localStorage.getItem('roommate_user'));
+      if (user) {
+        document.getElementById('unauth-view').classList.add('hidden');
+        document.getElementById('auth-view').classList.remove('hidden');
+        
+        let msg = `Welcome, ${user.name}!`;
+        if (user.group_name) {
+          msg += ` (Household Code: ${user.group_name})`;
+          document.getElementById('no-group-view').classList.add('hidden');
+          window.currentGroup = user.group_name; // Global variable for teammates to use
+        } else {
+          document.getElementById('no-group-view').classList.remove('hidden');
+        }
+        document.getElementById('welcome-msg').textContent = msg;
+      } else {
+        document.getElementById('unauth-view').classList.remove('hidden');
+        document.getElementById('auth-view').classList.add('hidden');
+        window.currentGroup = null;
+      }
+    }
+
     async function registerUser(event) {
       event.preventDefault();
       const data = await request('/api/register', {
@@ -182,11 +224,11 @@
         body: JSON.stringify({
           name: document.getElementById('register-name').value,
           email: document.getElementById('register-email').value,
-          password: document.getElementById('register-password').value,
-          group_name: document.getElementById('register-group').value
+          password: document.getElementById('register-password').value
         })
       });
       document.getElementById('auth-output').textContent = JSON.stringify(data, null, 2);
+      if (!data.error) alert('Registration successful! Please login.');
     }
 
     async function loginUser(event) {
@@ -199,7 +241,51 @@
         })
       });
       document.getElementById('auth-output').textContent = JSON.stringify(data, null, 2);
+      if (data.user) {
+        localStorage.setItem('roommate_user', JSON.stringify(data.user));
+        checkAuth();
+      }
     }
+
+    function logoutUser() {
+      localStorage.removeItem('roommate_user');
+      document.getElementById('auth-output').textContent = 'Logged out successfully.';
+      checkAuth();
+    }
+
+    async function createGroup() {
+      const user = JSON.parse(localStorage.getItem('roommate_user'));
+      const data = await request('/api/group/create', {
+        method: 'POST',
+        body: JSON.stringify({ userId: user.id })
+      });
+      document.getElementById('auth-output').textContent = JSON.stringify(data, null, 2);
+      if (data.group_name) {
+        user.group_name = data.group_name;
+        localStorage.setItem('roommate_user', JSON.stringify(user));
+        checkAuth();
+      }
+    }
+
+    async function joinGroup(event) {
+      event.preventDefault();
+      const user = JSON.parse(localStorage.getItem('roommate_user'));
+      const code = document.getElementById('join-group-code').value;
+      const data = await request('/api/group/join', {
+        method: 'POST',
+        body: JSON.stringify({ userId: user.id, group_name: code })
+      });
+      document.getElementById('auth-output').textContent = JSON.stringify(data, null, 2);
+      if (!data.error) {
+        user.group_name = code;
+        localStorage.setItem('roommate_user', JSON.stringify(user));
+        checkAuth();
+      }
+    }
+
+    // ===================================
+    // REST OF THE TEAM'S LOGIC
+    // ===================================
 
     async function addChore(event) {
       event.preventDefault();

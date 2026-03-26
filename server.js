@@ -10,8 +10,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // ===================================
 // DATABASE SETUP
-// Keeping database setup in one file
-// so the project stays simple.
 // ===================================
 const db = new sqlite3.Database(path.join(__dirname, 'roommate.db'));
 
@@ -29,7 +27,8 @@ db.serialize(() => {
     title TEXT NOT NULL,
     assigned_to TEXT,
     status TEXT DEFAULT 'Pending',
-    due_date TEXT
+    due_date TEXT,
+    group_name TEXT
   )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS expenses (
@@ -38,76 +37,42 @@ db.serialize(() => {
     amount REAL NOT NULL,
     paid_by TEXT,
     split_between TEXT,
-    status TEXT DEFAULT 'Unpaid'
+    status TEXT DEFAULT 'Unpaid',
+    group_name TEXT
   )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS groceries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     item_name TEXT NOT NULL,
     quantity TEXT,
-    purchased INTEGER DEFAULT 0
+    purchased INTEGER DEFAULT 0,
+    group_name TEXT
   )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     message TEXT NOT NULL,
-    type TEXT DEFAULT 'info'
+    type TEXT DEFAULT 'info',
+    group_name TEXT
   )`);
 });
 
 // ===================================
-// TEAM TODO NOTES
+// JOSHUA: AUTH / GROUP ROUTES
 // ===================================
 
-// TODO Joshua:
-// - finish register logic
-// - finish login logic
-// - add create group logic
-// - add join group logic
-// - make sure users only see their own group data
-
-// TODO Bethlehem:
-// - add chore edit logic
-// - add chore delete logic
-// - add assign chore logic
-// - add update chore status logic
-// - optional: add rotating/random chore assignment
-
-// TODO Jaime:
-// - add expense split logic
-// - add balance calculation logic
-// - make expense summary cleaner
-// - do final integration and make sure the full app still runs
-
-// TODO Justin:
-// - add grocery edit logic
-// - add grocery delete logic
-// - add purchased toggle logic
-// - add notifications/reminders logic
-
-// TODO Peter:
-// - make dashboard summary better
-// - show totals for chores, expenses, groceries, and notifications
-// - help with final cleanup and bug fixing
-
-// ===================================
-// AUTH / GROUP ROUTES
-// Joshua
-// ===================================
 app.post('/api/register', (req, res) => {
-  const { name, email, password, group_name } = req.body;
-  const sql = 'INSERT INTO users (name, email, password, group_name) VALUES (?, ?, ?, ?)';
-
-  db.run(sql, [name, email, password, group_name || null], function (err) {
+  const { name, email, password } = req.body;
+  const sql = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
+  db.run(sql, [name, email, password], function (err) {
     if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'User registered', id: this.lastID });
+    res.json({ message: 'User registered successfully', id: this.lastID });
   });
 });
 
 app.post('/api/login', (req, res) => {
   const { email, password } = req.body;
-  const sql = 'SELECT * FROM users WHERE email = ? AND password = ?';
-
+  const sql = 'SELECT id, name, email, group_name FROM users WHERE email = ? AND password = ?';
   db.get(sql, [email, password], (err, row) => {
     if (err) return res.status(500).json({ error: err.message });
     if (!row) return res.status(401).json({ error: 'Invalid credentials' });
@@ -115,16 +80,27 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-app.get('/api/users', (req, res) => {
-  db.all('SELECT id, name, email, group_name FROM users', [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
+app.post('/api/group/create', (req, res) => {
+  const { userId } = req.body;
+  const groupCode = 'ROOM-' + Math.floor(1000 + Math.random() * 9000); 
+  const sql = 'UPDATE users SET group_name = ? WHERE id = ?';
+  db.run(sql, [groupCode, userId], function(err) {
+    if (err) return res.status(400).json({ error: err.message });
+    res.json({ message: 'Household created', group_name: groupCode });
+  });
+});
+
+app.post('/api/group/join', (req, res) => {
+  const { userId, group_name } = req.body;
+  const sql = 'UPDATE users SET group_name = ? WHERE id = ?';
+  db.run(sql, [group_name, userId], function(err) {
+    if (err) return res.status(400).json({ error: err.message });
+    res.json({ message: 'Joined household successfully', group_name });
   });
 });
 
 // ===================================
-// CHORE ROUTES
-// Bethlehem
+// BETHLEHEM: CHORE ROUTES
 // ===================================
 app.get('/api/chores', (req, res) => {
   db.all('SELECT * FROM chores ORDER BY id DESC', [], (err, rows) => {
@@ -136,33 +112,14 @@ app.get('/api/chores', (req, res) => {
 app.post('/api/chores', (req, res) => {
   const { title, assigned_to, status, due_date } = req.body;
   const sql = 'INSERT INTO chores (title, assigned_to, status, due_date) VALUES (?, ?, ?, ?)';
-
   db.run(sql, [title, assigned_to || '', status || 'Pending', due_date || ''], function (err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Chore added', id: this.lastID });
   });
 });
 
-app.put('/api/chores/:id', (req, res) => {
-  const { title, assigned_to, status, due_date } = req.body;
-  const sql = 'UPDATE chores SET title = ?, assigned_to = ?, status = ?, due_date = ? WHERE id = ?';
-
-  db.run(sql, [title, assigned_to, status, due_date, req.params.id], function (err) {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'Chore updated' });
-  });
-});
-
-app.delete('/api/chores/:id', (req, res) => {
-  db.run('DELETE FROM chores WHERE id = ?', [req.params.id], function (err) {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'Chore deleted' });
-  });
-});
-
 // ===================================
-// EXPENSE ROUTES
-// Jaime
+// JAIME: EXPENSE ROUTES
 // ===================================
 app.get('/api/expenses', (req, res) => {
   db.all('SELECT * FROM expenses ORDER BY id DESC', [], (err, rows) => {
@@ -174,42 +131,14 @@ app.get('/api/expenses', (req, res) => {
 app.post('/api/expenses', (req, res) => {
   const { title, amount, paid_by, split_between, status } = req.body;
   const sql = 'INSERT INTO expenses (title, amount, paid_by, split_between, status) VALUES (?, ?, ?, ?, ?)';
-
   db.run(sql, [title, amount, paid_by || '', split_between || '', status || 'Unpaid'], function (err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Expense added', id: this.lastID });
   });
 });
 
-app.put('/api/expenses/:id', (req, res) => {
-  const { title, amount, paid_by, split_between, status } = req.body;
-  const sql = 'UPDATE expenses SET title = ?, amount = ?, paid_by = ?, split_between = ?, status = ? WHERE id = ?';
-
-  db.run(sql, [title, amount, paid_by, split_between, status, req.params.id], function (err) {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'Expense updated' });
-  });
-});
-
-app.delete('/api/expenses/:id', (req, res) => {
-  db.run('DELETE FROM expenses WHERE id = ?', [req.params.id], function (err) {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'Expense deleted' });
-  });
-});
-
-app.get('/api/expenses-summary', (req, res) => {
-  db.all('SELECT * FROM expenses', [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-
-    const total = rows.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
-    res.json({ total, count: rows.length, rows });
-  });
-});
-
 // ===================================
-// GROCERY ROUTES
-// Justin
+// JUSTIN: GROCERY & NOTIFICATION ROUTES
 // ===================================
 app.get('/api/groceries', (req, res) => {
   db.all('SELECT * FROM groceries ORDER BY id DESC', [], (err, rows) => {
@@ -221,34 +150,12 @@ app.get('/api/groceries', (req, res) => {
 app.post('/api/groceries', (req, res) => {
   const { item_name, quantity, purchased } = req.body;
   const sql = 'INSERT INTO groceries (item_name, quantity, purchased) VALUES (?, ?, ?)';
-
   db.run(sql, [item_name, quantity || '', purchased ? 1 : 0], function (err) {
     if (err) return res.status(400).json({ error: err.message });
     res.json({ message: 'Grocery item added', id: this.lastID });
   });
 });
 
-app.put('/api/groceries/:id', (req, res) => {
-  const { item_name, quantity, purchased } = req.body;
-  const sql = 'UPDATE groceries SET item_name = ?, quantity = ?, purchased = ? WHERE id = ?';
-
-  db.run(sql, [item_name, quantity, purchased ? 1 : 0, req.params.id], function (err) {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'Grocery item updated' });
-  });
-});
-
-app.delete('/api/groceries/:id', (req, res) => {
-  db.run('DELETE FROM groceries WHERE id = ?', [req.params.id], function (err) {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'Grocery item deleted' });
-  });
-});
-
-// ===================================
-// NOTIFICATION ROUTES
-// Justin
-// ===================================
 app.get('/api/notifications', (req, res) => {
   db.all('SELECT * FROM notifications ORDER BY id DESC', [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
@@ -256,39 +163,16 @@ app.get('/api/notifications', (req, res) => {
   });
 });
 
-app.post('/api/notifications', (req, res) => {
-  const { message, type } = req.body;
-  db.run('INSERT INTO notifications (message, type) VALUES (?, ?)', [message, type || 'info'], function (err) {
-    if (err) return res.status(400).json({ error: err.message });
-    res.json({ message: 'Notification created', id: this.lastID });
-  });
-});
-
 // ===================================
-// DASHBOARD ROUTES
-// Peter
+// PETER: DASHBOARD ROUTES
 // ===================================
 app.get('/api/dashboard', (req, res) => {
   const dashboard = {};
-
-  db.all('SELECT * FROM chores ORDER BY id DESC LIMIT 5', [], (err, chores) => {
-    if (err) return res.status(500).json({ error: err.message });
+  db.all('SELECT * FROM chores LIMIT 5', [], (err, chores) => {
     dashboard.chores = chores;
-
-    db.all('SELECT * FROM expenses ORDER BY id DESC LIMIT 5', [], (err2, expenses) => {
-      if (err2) return res.status(500).json({ error: err2.message });
+    db.all('SELECT * FROM expenses LIMIT 5', [], (err2, expenses) => {
       dashboard.expenses = expenses;
-
-      db.all('SELECT * FROM groceries ORDER BY id DESC LIMIT 5', [], (err3, groceries) => {
-        if (err3) return res.status(500).json({ error: err3.message });
-        dashboard.groceries = groceries;
-
-        db.all('SELECT * FROM notifications ORDER BY id DESC LIMIT 5', [], (err4, notifications) => {
-          if (err4) return res.status(500).json({ error: err4.message });
-          dashboard.notifications = notifications;
-          res.json(dashboard);
-        });
-      });
+      res.json(dashboard);
     });
   });
 });

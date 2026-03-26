@@ -402,3 +402,71 @@
 <button onclick="editChore()">Edit Chore</button>
 
 <ul id="choreList"></ul>
+async function addChore() {
+    const name = document.getElementById('choreName').value;
+    const assignedTo = document.getElementById('assignedTo').value;
+
+    await fetch('/api/chores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, assignedTo })
+    });
+
+    loadChores();
+}
+
+async function loadChores() {
+    const res = await fetch('/api/chores');
+    const chores = await res.json();
+
+    const list = document.getElementById('choreList');
+    list.innerHTML = '';
+
+    chores.forEach(chore => {
+        const li = document.createElement('li');
+
+        li.innerHTML = `
+            ID: ${chore.id} | ${chore.name} - ${chore.assignedTo}
+            (${chore.completed ? "✅ Done" : "❌ Pending"})
+            <button onclick="completeChore(${chore.id})">Complete</button>
+            <button onclick="deleteChore(${chore.id})">Delete</button>
+        `;
+
+        list.appendChild(li);
+    });
+}
+
+async function completeChore(id) {
+    await fetch(`/api/chores/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: true })
+    });
+
+    loadChores();
+}
+
+async function deleteChore(id) {
+    await fetch(`/api/chores/${id}`, {
+        method: 'DELETE'
+    });
+
+    loadChores();
+}
+
+async function editChore() {
+    const id = document.getElementById('editId').value;
+    const name = document.getElementById('newName').value;
+    const assignedTo = document.getElementById('newAssigned').value;
+
+    await fetch(`/api/chores/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, assignedTo })
+    });
+
+    loadChores();
+}
+
+// LOAD ON START
+loadChores();

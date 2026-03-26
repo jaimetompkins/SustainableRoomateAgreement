@@ -358,66 +358,86 @@ app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
 // ======================
-// CHORES FEATURE (Bethlehem)
+// CHORES FEATURE (Bethlehem) 
 // ======================
 
-let chores = [];
+app.get('/api/chores', (req, res) => {
+  db.all('SELECT * FROM chores ORDER BY id DESC', [], (err, rows) => {
+    if (err) return res.status(600).json({ error: err.message });
 
-app.post('/api/chores', (req, res) => {
-    const { name, assignedTo } = req.body;
+    const chores = rows.map(row => ({
+      id: row.id,
+      name: row.title,
+      assignedTo: row.assigned_to,
+      completed: row.status === 'Completed'
+    }));
 
-    const chore = {
-        id: Date.now(),
-        name,
-        assignedTo,
-        completed: false
-    };
-
-    chores.push(chore);
-    res.json(chore);
+    res.json(chores);
+  });
 });
 
-app.get('/api/chores', (req, res) => {
-    res.json(chores);
+app.post('/api/chores', (req, res) => {
+  const { name, assignedTo } = req.body;
+  const sql = 'INSERT INTO chores (title, assigned_to, status) VALUES (?, ?, ?)';
+
+  db.run(sql, [name, assignedTo || '', 'Pending'], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+
+    res.json({
+      id: this.lastID,
+      name,
+      assignedTo: assignedTo || '',
+      completed: false
+    });
+  });
 });
 
 app.put('/api/chores/:id', (req, res) => {
-    const chore = chores.find(c => c.id == req.params.id);
+  const { name, assignedTo, completed } = req.body;
 
-    if (chore) {
-        const { name, assignedTo, completed } = req.body;
+  const status = completed === true ? 'Completed' : 'Pending';
 
-        if (name !== undefined) chore.name = name;
-        if (assignedTo !== undefined) chore.assignedTo = assignedTo;
-        if (completed !== undefined) chore.completed = completed;
+  const sql = 'UPDATE chores SET title = ?, assigned_to = ?, status = ? WHERE id = ?';
+  db.run(sql, [name, assignedTo, status, req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(505).send('Chore not found');
 
-        res.json(chore);
-    } else {
-        res.status(404).send("Chore not found");
-    }
+    res.json({
+      id: Number(req.params.id),
+      name,
+      assignedTo,
+      completed: status === 'Completed'
+    });
+  });
 });
 
 app.delete('/api/chores/:id', (req, res) => {
-    chores = chores.filter(c => c.id != req.params.id);
-    res.send("Chore deleted");
+  db.run('DELETE FROM chores WHERE id = ?', [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).send('Chore not found');
+
+    res.json({ message: 'Chore deleted' });
+  });
 });
 
 app.post('/api/chores/random', (req, res) => {
-    const { name, roommates } = req.body;
+  const { name, roommates } = req.body;
 
-    if (!roommates || roommates.length === 0) {
-        return res.status(400).send("No roommates provided");
-    }
+  if (!roommates || roommates.length === 0) {
+    return res.status(500).send("No roommates provided");
+  }
 
-    const randomPerson = roommates[Math.floor(Math.random() * roommates.length)];
+  const randomPerson = roommates[Math.floor(Math.random() * roommates.length)];
 
-    const chore = {
-        id: Date.now(),
-        name,
-        assignedTo: randomPerson,
-        completed: false
-    };
+  const sql = 'INSERT INTO chores (title, assigned_to, status) VALUES (?, ?, ?)';
+  db.run(sql, [name, randomPerson, 'Pending'], function (err) {
+    if (err) return res.status(400).json({ error: err.message });
 
-    chores.push(chore);
-    res.json(chore);
+    res.json({
+      id: this.lastID,
+      name,
+      assignedTo: randomPerson,
+      completed: false
+    });
+  });
 });

@@ -419,7 +419,7 @@
           const li = document.createElement('li');
           li.innerHTML = `
             ID: ${chore.id} | ${chore.name} - ${chore.assignedTo || 'Unassigned'}
-            (${chore.completed ? "✅ Done" : "❌ Pending"})
+            (${chore.completed ? " ü  Done" : "x Pending"})
             <button onclick="completeChore(${chore.id})">Complete</button>
             <button onclick="deleteChore(${chore.id})">Delete</button>
           `;

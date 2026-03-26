@@ -287,15 +287,14 @@ app.post('/api/notifications', (req, res) => {
 });
 
 // Generate grocery reminders for unpurchased items
-app.post('/api/nitifications/grocery-reminders', (req, res) => {
+app.post('/api/notifications/grocery-reminders', (req, res) => {
   const sql = 'SELECT * FROM groceries WHERE purchased = 0';
 
   db.all(sql, [], (err, rows) => {
     if (err) return res.status(500).json({ error: err.message });
 
     rows.forEach(item => {
-      const message = 'Reminder: ${item.item_name} is still not purchased.';
-      db.run(
+const message = `Reminder: ${item.item_name} is still not purchased.`;      db.run(
         'INSERT INTO notifications (message, type) VALUES (?, ?)',
         [message, 'warning']
       );

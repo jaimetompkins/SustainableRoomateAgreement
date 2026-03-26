@@ -364,7 +364,7 @@
   document.getElementById('completed-chores').textContent = summary.completedChores || 0;
   document.getElementById('pending-chores').textContent = summary.pendingChores || 0;
   document.getElementById('total-expenses').textContent = summary.totalExpenses || 0;
-  ddocument.getElementById('dashboard-expense-amount').textContent = `$${Number(summary.totalExpenseAmount || 0).toFixed(2)}`;
+  document.getElementById('dashboard-expense-amount').textContent = `$${Number(summary.totalExpenseAmount || 0).toFixed(2)}`;
   document.getElementById('total-groceries').textContent = summary.totalGroceries || 0;
   document.getElementById('purchased-groceries').textContent = summary.purchasedGroceries || 0;
   document.getElementById('total-notifications').textContent = summary.totalNotifications || 0;

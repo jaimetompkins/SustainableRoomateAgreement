@@ -254,7 +254,7 @@ app.patch('/api/groceries/:id/purchase', (req, res) => {
     if (err) return res.status(400).json({ error: err.message });
 
     // Create notification when item is purchased
-    if (purchased) {
+    if (!row.purchased && purchased) {
       const message = 'A grocery item was marked as purchased.';
       db.run(
         'INSERT INTO notifications (message, type) VALUES (?, ?)',

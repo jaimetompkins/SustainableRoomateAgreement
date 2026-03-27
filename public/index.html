@@ -197,14 +197,8 @@
         <input id="grocery-quantity" placeholder="Quantity" />
         <button class="submit" type="submit">Add Grocery Item</button>
       </form>
-      <button class="submit" onclick="loadGroceries()">Load Groceries</button>
+      <button type="button" onclick="loadGroceries()">Refresh Groceries</button>
       <ul id="grocery-list"></ul>
-      <div class="todo">
-        TODO Justin:
-        - add edit grocery button
-        - add delete grocery button
-        - add purchased toggle
-      </div>
     </section>
 
     <section id="notifications-tab" class="hidden">
@@ -218,8 +212,15 @@
         </select>
         <button class="submit" type="submit">Add Notification</button>
       </form>
-      <button class="submit" onclick="loadNotifications()">Load Notifications</button>
+      <button class="submit" onclick="loadNotifications()">Refresh Notifications</button>
+
+      <button type="button" class="submit" onclick="generateGroceryReminders()">Generate Grocery Reminders</button>
+
+      <button type="button" class="submit" onclick="generateChoreReminders()">Generate Chore Reminders</button>
+
+      <button type="button" class="submit" onclick="generateExpenseReminders()">Generate Expense Reminders</button>
       <ul id="notification-list"></ul>
+
       <div class="todo">
         TODO Justin:
         - make reminders/notifications work
@@ -330,12 +331,84 @@
       loadGroceries();
     }
 
-    async function loadGroceries() {
-      const groceries = await request('/api/groceries');
-      document.getElementById('grocery-list').innerHTML = groceries.map(item =>
-        `<li><strong>${item.item_name}</strong> - ${item.quantity || 'No quantity'} - ${item.purchased ? 'Purchased' : 'Not purchased'}</li>`
-      ).join('');
-    }
+    
+async function loadGroceries() {
+  console.log('loadGroceries clicked');
+
+  document.getElementById('groceries-tab').classList.remove('hidden');
+
+  const groceries = await request('/api/groceries');
+  console.log('Groceries data:', groceries);
+
+  const list = document.getElementById('grocery-list');
+  list.innerHTML = '';
+
+  groceries.forEach(item => {
+    const li = document.createElement('li');
+
+      li.innerHTML = `
+      <input 
+        type="checkbox"
+        ${item.purchased ? 'checked' : ''}
+        onchange="togglePurchased(${item.id}, this.checked)"
+      />
+
+      <strong>${item.item_name}</strong>
+      (${item.quantity || 'No quantity'})
+
+      <button onclick="editGrocery(${item.id}, '${item.item_name}', '${item.quantity || ''}', ${item.purchased})">
+        Edit
+      </button>
+
+      <button onclick="deleteGrocery(${item.id})">
+        Delete
+      </button>
+    `;
+
+    list.appendChild(li);
+  });
+}
+
+
+async function togglePurchased(id, purchased) {
+  await request(`/api/groceries/${id}/purchase`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ purchased })
+  });
+  loadGroceries();
+}
+
+
+async function deleteGrocery(id) {
+  if (!confirm('Delete this grocery item?')) return;
+
+  await request(`/api/groceries/${id}`, {
+    method: 'DELETE'
+  });
+  loadGroceries();
+}
+
+
+async function editGrocery(id, name, quantity, purchased) {
+  const newName = prompt('Edit item name:', name);
+  if (newName === null) return;
+
+  const newQty = prompt('Edit quantity:', quantity);
+
+  await request(`/api/groceries/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      item_name: newName,
+      quantity: newQty,
+      purchased
+    })
+  });
+
+  loadGroceries();
+}
+
 
     async function addNotification(event) {
       event.preventDefault();
@@ -354,6 +427,35 @@
       document.getElementById('notification-list').innerHTML = notifications.map(note =>
         `<li><strong>${note.type}</strong> - ${note.message}</li>`
       ).join('');
+    }
+
+    async function generateGroceryReminders() {
+      await request('/api/notifications/grocery-reminders', {
+        method: 'POST'
+      });
+
+      alert('Grocery reminder notifications generated.');
+      loadNotifications();
+    }
+
+    async function generateChoreReminders() {
+      await request('/api/notifications/chore-reminders', {
+        method: 'POST'
+      });
+
+      alert('Chore reminder notifications generated.');
+      loadNotifications();
+    }
+
+    async function generateExpenseReminders() {
+      console.log('EXPENSE REMINDER FUNCTION CALLED');
+      
+      await request('/api/notifications/expense-reminders', {
+        method: 'POST'
+      });
+
+      alert('Expense reminder notifications generated.');
+      loadNotifications();
     }
 
     async function loadDashboard() {

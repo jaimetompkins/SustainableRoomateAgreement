@@ -326,6 +326,64 @@ const message = `Reminder: ${item.item_name} is still not purchased.`;      db.r
   });
 });
 
+
+// Generate reminders for overdue chores
+app.post('/api/notifications/chore-reminders', (req, res) => {
+  const today = new Date().toISOString().split('T')[0];
+
+  const sql = `
+    SELECT * FROM chores
+    WHERE status != 'Completed'
+    AND due_date IS NOT NULL
+    AND due_date < ?
+  `;
+
+  db.all(sql, [today], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    rows.forEach(chore => {
+      const message = `Reminder: Chore "${chore.title}" is overdue.`;
+      db.run(
+        'INSERT INTO notifications (message, type) VALUES (?, ?)',
+        [message, 'warning']
+      );
+    });
+
+    res.json({
+      message: 'Chore reminders generated',
+      count: rows.length
+    });
+  });
+});
+
+
+// Generate reminders for unpaid expenses
+app.post('/api/notifications/expense-reminders', (req, res) => {
+  const sql = `
+    SELECT * FROM expenses
+    WHERE status = 'Unpaid'
+  `;
+
+  db.all(sql, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    rows.forEach(expense => {
+      const message = `Reminder: Expense "${expense.title}" is still unpaid.`;
+      db.run(
+        'INSERT INTO notifications (message, type) VALUES (?, ?)',
+        [message, 'warning']
+      );
+    });
+
+    res.json({
+      message: 'Expense reminders generated',
+      count: rows.length
+    });
+  });
+});
+
+
+
 // ===================================
 // DASHBOARD ROUTES
 // Peter

@@ -246,26 +246,45 @@ app.delete('/api/groceries/:id', (req, res) => {
 });
 
 // Toggle grocery item as purchased
+
 app.patch('/api/groceries/:id/purchase', (req, res) => {
   const { purchased } = req.body;
+  const id = req.params.id;
 
-  const sql = 'UPDATE groceries SET purchased = ? WHERE id = ?';
-  db.run(sql, [purchased ? 1 : 0, req.params.id], function (err) {
-    if (err) return res.status(400).json({ error: err.message });
+  //Get previous purchase state
+  db.get(
+    'SELECT purchased FROM groceries WHERE id = ?',
+    [id],
+    (err, row) => {
+      if (err) return res.status(400).json({ error: err.message });
+      if (!row) return res.status(404).json({ error: 'Item not found' });
 
-    // Create notification when item is purchased
-    if (!row.purchased && purchased) {
-      const message = 'A grocery item was marked as purchased.';
+      const wasPurchased = row.purchased === 1;
+      const nowPurchased = purchased === true;
+
+      //Update grocery
       db.run(
-        'INSERT INTO notifications (message, type) VALUES (?, ?)',
-        [message, 'success']
-        );
-    }
+        'UPDATE groceries SET purchased = ? WHERE id = ?',
+        [nowPurchased ? 1 : 0, id],
+        function (err) {
+          if (err) return res.status(400).json({ error: err.message });
 
-    res.json({ message: 'Grocery purchase status updated' });
-  });
+          //Only notify on FALSE → TRUE transition
+          if (!wasPurchased && nowPurchased) {
+            const message = 'A grocery item was marked as purchased.';
+            db.run(
+              'INSERT INTO notifications (message, type) VALUES (?, ?)',
+              [message, 'success']
+            );
+          }
+
+          res.json({ message: 'Grocery purchase status updated' });
+        }
+      );
+    }
+  );
 });
-    
+
 
 // ===================================
 // NOTIFICATION ROUTES

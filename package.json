@@ -1,7 +1,7 @@
 {
   "name": "minimal-roommate-app",
   "version": "1.0.0",
-  "description": "Minimal starter framework for the Sustainable Roommate Agreement project",
+  "description": "Sustainable Roommate Agreement final project",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

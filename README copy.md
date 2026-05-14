@@ -1,38 +1,41 @@
-# Minimal Roommate App Starter
+# Sustainable Roommate Agreement App
 
-This is the starter project for our Sustainable Roommate Agreement app.
+This is the final project for our Sustainable Roommate Agreement app. The application helps roommates manage shared responsibilities such as chores, expenses, groceries, reminders, and household activity summaries.
 
-Everything is kept simple on purpose so it is easier for everyone to work on their part without dealing with a bunch of separate files.
+The project uses a simplified full-stack structure with one backend file and one frontend file to make the system easier to understand, test, and maintain.
+
+## Features
+
+- User registration and login
+- Chore creation, assignment, status tracking, editing, and deletion
+- Expense tracking with payer, amount, split-between field, and payment status
+- Grocery list management with add, edit, delete, and purchased toggle
+- Notification system for grocery reminders, overdue chores, and unpaid expenses
+- Dashboard summary for chores, expenses, groceries, and notifications
+
+## Technology Used
+
+- Node.js
+- Express.js
+- SQLite3
+- HTML
+- CSS
+- JavaScript
 
 ## Project Files
+
 - `package.json` — project dependencies and scripts
+- `package-lock.json` — exact installed dependency versions
 - `server.js` — backend code, database setup, and API routes
 - `public/index.html` — frontend HTML, CSS, and JavaScript
-- `README.md` — setup instructions and team split
+- `README.md` — setup instructions and project documentation
+- `.gitignore` — files and folders excluded from GitHub submission
 
 ## How to Run the Project
-1. Open the project folder in VS Code
-2. Open the terminal in that folder
-3. Run `npm install`
-4. Run `npm start`
-5. Open `http://localhost:3000` in your browser
 
-## Team Coding Split
-- **Joshua** — auth and group features in `server.js` and the auth section in `public/index.html`
-- **Bethlehem** — chores features in `server.js` and the chores section in `public/index.html`
-- **Jaime** — expenses features in `server.js`, plus final integration and making sure the full app still runs
-- **Justin** — grocery list and notifications features in `server.js` and the grocery/notifications sections in `public/index.html`
-- **Peter** — dashboard features in `server.js` and the dashboard section in `public/index.html`
+1. Open the project folder in VS Code.
+2. Open the terminal in that folder.
+3. Run:
 
-## GitHub Workflow
-- We will use one GitHub repo for the whole project
-- Each person should make their own branch
-- Work on your own section first
-- Test your changes before merging
-- Merge finished work into `main`
-
-## Why We Are Using This Version
-- very few files
-- easier to understand
-- easier to split between team members
-- still works like a simple full-stack project
+```bash
+npm install

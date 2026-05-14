@@ -2,3 +2,5 @@ node_modules/
 roommate.db
 .DS_Store
 .env
+npm-debug.log*
+.vscode/

@@ -3,53 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Minimal Roommate App</title>
+  <title>Sustainable Roommate Agreement</title>
+
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    header {
+      background: #1f4f82;
+      color: white;
+      padding: 16px;
+    }
+
+    header h1 {
+      margin-bottom: 5px;
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    nav button {
+      padding: 10px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: white;
+      color: #1f4f82;
+      font-weight: bold;
+    }
+
+    main {
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    section {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    form {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    input, select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 8px 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 2px;
+    }
+
+    button.submit {
+      background: #1f4f82;
+      color: white;
+    }
+
+    button.danger {
+      background: #b3261e;
+      color: white;
+    }
+
+    button.secondary {
+      background: #e8eef5;
+      color: #1f4f82;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    pre {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .small {
+      color: #666;
+      font-size: 0.92rem;
+    }
+
+    header .small {
+      color: #e8eef5;
+    }
+
     .dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-  margin: 16px 0;
-}
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
 
-.card {
-  background: #eef4fb;
-  border-radius: 10px;
-  padding: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
+    .card {
+      background: #eef4fb;
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
 
-.card h3 {
-  margin: 0 0 8px 0;
-  font-size: 1rem;
-}
+    .card h3 {
+      margin: 0 0 8px 0;
+      font-size: 1rem;
+    }
 
-.card p {
-  margin: 0;
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #1f4f82;
-}
-    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; color: #222; }
-    header { background: #1f4f82; color: white; padding: 16px; }
-    nav { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-    nav button { padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer; }
-    main { padding: 20px; max-width: 1000px; margin: auto; }
-    section { background: white; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-    h2 { margin-top: 0; }
-    form { display: grid; gap: 8px; margin-bottom: 14px; }
-    input, select { padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
-    button.submit { background: #1f4f82; color: white; }
-    ul { padding-left: 20px; }
-    .hidden { display: none; }
-    .small { color: #666; font-size: 0.92rem; }
-    .todo { background: #fff7d6; padding: 10px; border-left: 4px solid #d9b300; margin-top: 10px; }
+    .card p {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #1f4f82;
+    }
   </style>
 </head>
+
 <body>
   <header>
     <h1>Sustainable Roommate Agreement</h1>
-    <p class="small">Minimal starter framework: all frontend in one file, all backend in one file.</p>
+    <p class="small">A roommate management system for chores, expenses, groceries, notifications, and dashboard summaries.</p>
+
     <nav>
       <button onclick="showTab('dashboard')">Dashboard</button>
       <button onclick="showTab('auth')">Auth</button>
@@ -61,91 +166,99 @@
   </header>
 
   <main>
+    <!-- DASHBOARD -->
     <section id="dashboard-tab">
-  <h2>Dashboard</h2>
-  <p class="small">Quick summary of roommate activity.</p>
-  <button class="submit" onclick="loadDashboard()">Refresh Dashboard</button>
+      <h2>Dashboard</h2>
+      <p class="small">Quick summary of roommate activity.</p>
 
-  <div id="dashboard-summary" class="dashboard-grid">
-    <div class="card">
-      <h3>Total Chores</h3>
-      <p id="total-chores">0</p>
-    </div>
-    <div class="card">
-      <h3>Completed</h3>
-      <p id="completed-chores">0</p>
-    </div>
-    <div class="card">
-      <h3>Pending</h3>
-      <p id="pending-chores">0</p>
-    </div>
-    <div class="card">
-      <h3>Expenses</h3>
-      <p id="total-expenses">0</p>
-    </div>
-    <div class="card">
-      <h3>Total Amount</h3>
-      <p id="dashboard-expense-amount">$0.00</p>
-    </div>
-    <div class="card">
-      <h3>Groceries</h3>
-      <p id="total-groceries">0</p>
-    </div>
-    <div class="card">
-      <h3>Purchased</h3>
-      <p id="purchased-groceries">0</p>
-    </div>
-    <div class="card">
-      <h3>Notifications</h3>
-      <p id="total-notifications">0</p>
-    </div>
-  </div>
+      <button class="submit" onclick="loadDashboard()">Refresh Dashboard</button>
 
-  <h3>Recent Chores</h3>
-  <ul id="dashboard-chores"></ul>
+      <div class="dashboard-grid">
+        <div class="card">
+          <h3>Total Chores</h3>
+          <p id="total-chores">0</p>
+        </div>
 
-  <h3>Recent Expenses</h3>
-  <ul id="dashboard-expenses"></ul>
+        <div class="card">
+          <h3>Completed Chores</h3>
+          <p id="completed-chores">0</p>
+        </div>
 
-  <h3>Recent Groceries</h3>
-  <ul id="dashboard-groceries"></ul>
+        <div class="card">
+          <h3>Pending Chores</h3>
+          <p id="pending-chores">0</p>
+        </div>
 
-  <h3>Recent Notifications</h3>
-  <ul id="dashboard-notifications"></ul>
-</section>
-<section id="auth-tab" class="hidden">
-  <h2>Auth</h2>
+        <div class="card">
+          <h3>Total Expenses</h3>
+          <p id="total-expenses">0</p>
+        </div>
 
-  <form onsubmit="registerUser(event)">
-    <input id="register-name" placeholder="Name" required />
-    <input id="register-email" placeholder="Email" type="email" required />
-    <input id="register-password" placeholder="Password" type="password" required />
-    <input id="register-group" placeholder="Group name" />
-    <button class="submit" type="submit">Register</button>
-  </form>
+        <div class="card">
+          <h3>Total Amount</h3>
+          <p id="dashboard-expense-amount">$0.00</p>
+        </div>
 
-  <form onsubmit="loginUser(event)">
-    <input id="login-email" placeholder="Email" type="email" required />
-    <input id="login-password" placeholder="Password" type="password" required />
-    <button class="submit" type="submit">Login</button>
-  </form>
+        <div class="card">
+          <h3>Total Groceries</h3>
+          <p id="total-groceries">0</p>
+        </div>
 
-  <pre id="auth-output">Auth output will show here.</pre>
+        <div class="card">
+          <h3>Purchased Groceries</h3>
+          <p id="purchased-groceries">0</p>
+        </div>
 
-  <div class="todo">
-    TODO Joshua:
-    - finish register and login flow
-    - add create group button/form if needed
-    - add join group button/form if needed
-  </div>
-</section>
+        <div class="card">
+          <h3>Notifications</h3>
+          <p id="total-notifications">0</p>
+        </div>
+      </div>
 
+      <h3>Recent Chores</h3>
+      <ul id="dashboard-chores"></ul>
+
+      <h3>Recent Expenses</h3>
+      <ul id="dashboard-expenses"></ul>
+
+      <h3>Recent Groceries</h3>
+      <ul id="dashboard-groceries"></ul>
+
+      <h3>Recent Notifications</h3>
+      <ul id="dashboard-notifications"></ul>
+    </section>
+
+    <!-- AUTH -->
+    <section id="auth-tab" class="hidden">
+      <h2>Authentication</h2>
+
+      <h3>Register</h3>
+      <form onsubmit="registerUser(event)">
+        <input id="register-name" placeholder="Name" required />
+        <input id="register-email" placeholder="Email" type="email" required />
+        <input id="register-password" placeholder="Password" type="password" required />
+        <input id="register-group" placeholder="Group name" />
+        <button class="submit" type="submit">Register</button>
+      </form>
+
+      <h3>Login</h3>
+      <form onsubmit="loginUser(event)">
+        <input id="login-email" placeholder="Email" type="email" required />
+        <input id="login-password" placeholder="Password" type="password" required />
+        <button class="submit" type="submit">Login</button>
+      </form>
+
+      <pre id="auth-output">Auth output will show here.</pre>
+    </section>
+
+    <!-- CHORES -->
     <section id="chores-tab" class="hidden">
       <h2>Chores</h2>
+
       <form onsubmit="addChore(event)">
         <input id="chore-title" placeholder="Chore title" required />
         <input id="chore-assigned" placeholder="Assigned to" />
-        <input id="chore-date" placeholder="Due date" />
+        <input id="chore-date" placeholder="Due date, example: 2026-05-14" />
         <select id="chore-status">
           <option>Pending</option>
           <option>In Progress</option>
@@ -153,56 +266,52 @@
         </select>
         <button class="submit" type="submit">Add Chore</button>
       </form>
+
       <button class="submit" onclick="loadChores()">Load Chores</button>
       <ul id="chore-list"></ul>
-      <div class="todo">
-        TODO Bethlehem:
-        - add edit chore button
-        - add delete chore button
-        - add assign/update status actions
-        - optional: rotating/random chore assignment
-      </div>
     </section>
 
+    <!-- EXPENSES -->
     <section id="expenses-tab" class="hidden">
       <h2>Expenses</h2>
+
       <form onsubmit="addExpense(event)">
         <input id="expense-title" placeholder="Expense title" required />
         <input id="expense-amount" placeholder="Amount" type="number" step="0.01" required />
         <input id="expense-paid-by" placeholder="Paid by" />
-        <input id="expense-split" placeholder="Split between (comma separated names)" />
+        <input id="expense-split" placeholder="Split between, example: Jaime, Josh, Justin" />
         <select id="expense-status">
           <option>Unpaid</option>
           <option>Paid</option>
         </select>
         <button class="submit" type="submit">Add Expense</button>
       </form>
+
       <button class="submit" onclick="loadExpenses()">Load Expenses</button>
       <button class="submit" onclick="loadExpenseSummary()">Load Expense Summary</button>
+
       <ul id="expense-list"></ul>
       <pre id="expense-summary">Expense summary will show here.</pre>
-      <div class="todo">
-        TODO Jaime:
-        - make split logic work
-        - calculate who owes what
-        - clean up expense summary output
-        - do final integration at the end
-      </div>
     </section>
 
+    <!-- GROCERIES -->
     <section id="groceries-tab" class="hidden">
       <h2>Groceries</h2>
+
       <form onsubmit="addGrocery(event)">
         <input id="grocery-name" placeholder="Item name" required />
         <input id="grocery-quantity" placeholder="Quantity" />
         <button class="submit" type="submit">Add Grocery Item</button>
       </form>
-      <button type="button" onclick="loadGroceries()">Refresh Groceries</button>
+
+      <button class="submit" onclick="loadGroceries()">Refresh Groceries</button>
       <ul id="grocery-list"></ul>
     </section>
 
+    <!-- NOTIFICATIONS -->
     <section id="notifications-tab" class="hidden">
       <h2>Notifications</h2>
+
       <form onsubmit="addNotification(event)">
         <input id="notification-message" placeholder="Notification message" required />
         <select id="notification-type">
@@ -212,28 +321,31 @@
         </select>
         <button class="submit" type="submit">Add Notification</button>
       </form>
+
       <button class="submit" onclick="loadNotifications()">Refresh Notifications</button>
+      <button class="submit" onclick="generateGroceryReminders()">Generate Grocery Reminders</button>
+      <button class="submit" onclick="generateChoreReminders()">Generate Chore Reminders</button>
+      <button class="submit" onclick="generateExpenseReminders()">Generate Expense Reminders</button>
 
-      <button type="button" class="submit" onclick="generateGroceryReminders()">Generate Grocery Reminders</button>
-
-      <button type="button" class="submit" onclick="generateChoreReminders()">Generate Chore Reminders</button>
-
-      <button type="button" class="submit" onclick="generateExpenseReminders()">Generate Expense Reminders</button>
       <ul id="notification-list"></ul>
-
-      <div class="todo">
-        TODO Justin:
-        - make reminders/notifications work
-        - connect reminders to overdue chores or unpaid expenses if possible
-      </div>
     </section>
   </main>
 
   <script>
     function showTab(name) {
       const tabs = ['dashboard', 'auth', 'chores', 'expenses', 'groceries', 'notifications'];
-      tabs.forEach(tab => document.getElementById(`${tab}-tab`).classList.add('hidden'));
+
+      tabs.forEach(tab => {
+        document.getElementById(`${tab}-tab`).classList.add('hidden');
+      });
+
       document.getElementById(`${name}-tab`).classList.remove('hidden');
+
+      if (name === 'dashboard') loadDashboard();
+      if (name === 'chores') loadChores();
+      if (name === 'expenses') loadExpenses();
+      if (name === 'groceries') loadGroceries();
+      if (name === 'notifications') loadNotifications();
     }
 
     async function request(url, options = {}) {
@@ -241,11 +353,20 @@
         headers: { 'Content-Type': 'application/json' },
         ...options
       });
+
       return response.json();
     }
 
+    function formatMoney(value) {
+      return `$${Number(value || 0).toFixed(2)}`;
+    }
+
+    // ======================
+    // AUTH
+    // ======================
     async function registerUser(event) {
       event.preventDefault();
+
       const data = await request('/api/register', {
         method: 'POST',
         body: JSON.stringify({
@@ -255,11 +376,14 @@
           group_name: document.getElementById('register-group').value
         })
       });
+
       document.getElementById('auth-output').textContent = JSON.stringify(data, null, 2);
+      event.target.reset();
     }
 
     async function loginUser(event) {
       event.preventDefault();
+
       const data = await request('/api/login', {
         method: 'POST',
         body: JSON.stringify({
@@ -267,11 +391,17 @@
           password: document.getElementById('login-password').value
         })
       });
+
       document.getElementById('auth-output').textContent = JSON.stringify(data, null, 2);
+      event.target.reset();
     }
 
+    // ======================
+    // CHORES
+    // ======================
     async function addChore(event) {
       event.preventDefault();
+
       await request('/api/chores', {
         method: 'POST',
         body: JSON.stringify({
@@ -281,18 +411,99 @@
           status: document.getElementById('chore-status').value
         })
       });
+
+      event.target.reset();
       loadChores();
+      loadDashboard();
     }
 
     async function loadChores() {
       const chores = await request('/api/chores');
-      document.getElementById('chore-list').innerHTML = chores.map(chore =>
-        `<li><strong>${chore.title}</strong> - ${chore.assigned_to || 'Unassigned'} - ${chore.status} - ${chore.due_date || 'No due date'}</li>`
-      ).join('');
+      const list = document.getElementById('chore-list');
+
+      list.innerHTML = '';
+
+      chores.forEach(chore => {
+        const li = document.createElement('li');
+
+        li.innerHTML = `
+          <strong>${chore.title}</strong>
+          — Assigned to: ${chore.assigned_to || 'Unassigned'}
+          — Status: ${chore.status}
+          — Due: ${chore.due_date || 'No due date'}
+        `;
+
+        const completeButton = document.createElement('button');
+        completeButton.className = 'secondary';
+        completeButton.textContent = 'Mark Completed';
+        completeButton.onclick = () => updateChore(chore.id, chore.title, chore.assigned_to, 'Completed', chore.due_date);
+
+        const editButton = document.createElement('button');
+        editButton.className = 'secondary';
+        editButton.textContent = 'Edit';
+        editButton.onclick = () => editChore(chore);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'danger';
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteChore(chore.id);
+
+        li.appendChild(completeButton);
+        li.appendChild(editButton);
+        li.appendChild(deleteButton);
+
+        list.appendChild(li);
+      });
     }
 
+    async function updateChore(id, title, assigned_to, status, due_date) {
+      await request(`/api/chores/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          title,
+          assigned_to,
+          status,
+          due_date
+        })
+      });
+
+      loadChores();
+      loadDashboard();
+    }
+
+    async function editChore(chore) {
+      const title = prompt('Edit chore title:', chore.title);
+      if (title === null) return;
+
+      const assigned_to = prompt('Edit assigned roommate:', chore.assigned_to || '');
+      if (assigned_to === null) return;
+
+      const due_date = prompt('Edit due date:', chore.due_date || '');
+      if (due_date === null) return;
+
+      const status = prompt('Edit status: Pending, In Progress, or Completed', chore.status || 'Pending');
+      if (status === null) return;
+
+      await updateChore(chore.id, title, assigned_to, status, due_date);
+    }
+
+    async function deleteChore(id) {
+      if (!confirm('Delete this chore?')) return;
+
+      await request(`/api/chores/${id}`, {
+        method: 'DELETE'
+      });
+
+      loadChores();
+      loadDashboard();
+    }
+
+    // ======================
+    // EXPENSES
+    // ======================
     async function addExpense(event) {
       event.preventDefault();
+
       await request('/api/expenses', {
         method: 'POST',
         body: JSON.stringify({
@@ -303,14 +514,105 @@
           status: document.getElementById('expense-status').value
         })
       });
+
+      event.target.reset();
       loadExpenses();
+      loadDashboard();
     }
 
     async function loadExpenses() {
       const expenses = await request('/api/expenses');
-      document.getElementById('expense-list').innerHTML = expenses.map(expense =>
-        `<li><strong>${expense.title}</strong> - $${expense.amount} - Paid by ${expense.paid_by || 'N/A'} - ${expense.status}</li>`
-      ).join('');
+      const list = document.getElementById('expense-list');
+
+      list.innerHTML = '';
+
+      expenses.forEach(expense => {
+        const li = document.createElement('li');
+
+        li.innerHTML = `
+          <strong>${expense.title}</strong>
+          — Amount: ${formatMoney(expense.amount)}
+          — Paid by: ${expense.paid_by || 'N/A'}
+          — Split between: ${expense.split_between || 'N/A'}
+          — Status: ${expense.status}
+        `;
+
+        const paidButton = document.createElement('button');
+        paidButton.className = 'secondary';
+        paidButton.textContent = 'Mark Paid';
+        paidButton.onclick = () => updateExpense(
+          expense.id,
+          expense.title,
+          expense.amount,
+          expense.paid_by,
+          expense.split_between,
+          'Paid'
+        );
+
+        const editButton = document.createElement('button');
+        editButton.className = 'secondary';
+        editButton.textContent = 'Edit';
+        editButton.onclick = () => editExpense(expense);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'danger';
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteExpense(expense.id);
+
+        li.appendChild(paidButton);
+        li.appendChild(editButton);
+        li.appendChild(deleteButton);
+
+        list.appendChild(li);
+      });
+    }
+
+    async function updateExpense(id, title, amount, paid_by, split_between, status) {
+      await request(`/api/expenses/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          title,
+          amount,
+          paid_by,
+          split_between,
+          status
+        })
+      });
+
+      loadExpenses();
+      loadExpenseSummary();
+      loadDashboard();
+    }
+
+    async function editExpense(expense) {
+      const title = prompt('Edit expense title:', expense.title);
+      if (title === null) return;
+
+      const amount = prompt('Edit amount:', expense.amount);
+      if (amount === null) return;
+
+      const paid_by = prompt('Edit paid by:', expense.paid_by || '');
+      if (paid_by === null) return;
+
+      const split_between = prompt('Edit split between:', expense.split_between || '');
+      if (split_between === null) return;
+
+      const status = prompt('Edit status: Paid or Unpaid', expense.status || 'Unpaid');
+      if (status === null) return;
+
+      await updateExpense(expense.id, title, amount, paid_by, split_between, status);
+    }
+
+    async function deleteExpense(id) {
+      if (!confirm('Delete this expense?')) return;
+
+      await request(`/api/expenses/${id}`, {
+        method: 'DELETE'
+      });
+
+      loadExpenses();
+      loadExpenseSummary();
+      loadDashboard();
     }
 
     async function loadExpenseSummary() {
@@ -318,8 +620,12 @@
       document.getElementById('expense-summary').textContent = JSON.stringify(summary, null, 2);
     }
 
+    // ======================
+    // GROCERIES
+    // ======================
     async function addGrocery(event) {
       event.preventDefault();
+
       await request('/api/groceries', {
         method: 'POST',
         body: JSON.stringify({
@@ -328,90 +634,100 @@
           purchased: false
         })
       });
+
+      event.target.reset();
       loadGroceries();
+      loadDashboard();
     }
 
-    
-async function loadGroceries() {
-  console.log('loadGroceries clicked');
+    async function loadGroceries() {
+      const groceries = await request('/api/groceries');
+      const list = document.getElementById('grocery-list');
 
-  document.getElementById('groceries-tab').classList.remove('hidden');
+      list.innerHTML = '';
 
-  const groceries = await request('/api/groceries');
-  console.log('Groceries data:', groceries);
+      groceries.forEach(item => {
+        const li = document.createElement('li');
 
-  const list = document.getElementById('grocery-list');
-  list.innerHTML = '';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = item.purchased === 1;
+        checkbox.onchange = () => togglePurchased(item.id, checkbox.checked);
 
-  groceries.forEach(item => {
-    const li = document.createElement('li');
+        const text = document.createElement('span');
+        text.innerHTML = `
+          <strong>${item.item_name}</strong>
+          — Quantity: ${item.quantity || 'No quantity'}
+          — Status: ${item.purchased === 1 ? 'Purchased' : 'Not purchased'}
+        `;
 
-      li.innerHTML = `
-      <input 
-        type="checkbox"
-        ${item.purchased ? 'checked' : ''}
-        onchange="togglePurchased(${item.id}, this.checked)"
-      />
+        const editButton = document.createElement('button');
+        editButton.className = 'secondary';
+        editButton.textContent = 'Edit';
+        editButton.onclick = () => editGrocery(item);
 
-      <strong>${item.item_name}</strong>
-      (${item.quantity || 'No quantity'})
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'danger';
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteGrocery(item.id);
 
-      <button onclick="editGrocery(${item.id}, '${item.item_name}', '${item.quantity || ''}', ${item.purchased})">
-        Edit
-      </button>
+        li.appendChild(checkbox);
+        li.appendChild(text);
+        li.appendChild(editButton);
+        li.appendChild(deleteButton);
 
-      <button onclick="deleteGrocery(${item.id})">
-        Delete
-      </button>
-    `;
+        list.appendChild(li);
+      });
+    }
 
-    list.appendChild(li);
-  });
-}
+    async function togglePurchased(id, purchased) {
+      await request(`/api/groceries/${id}/purchase`, {
+        method: 'PATCH',
+        body: JSON.stringify({ purchased })
+      });
 
+      loadGroceries();
+      loadNotifications();
+      loadDashboard();
+    }
 
-async function togglePurchased(id, purchased) {
-  await request(`/api/groceries/${id}/purchase`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ purchased })
-  });
-  loadGroceries();
-}
+    async function editGrocery(item) {
+      const item_name = prompt('Edit item name:', item.item_name);
+      if (item_name === null) return;
 
+      const quantity = prompt('Edit quantity:', item.quantity || '');
+      if (quantity === null) return;
 
-async function deleteGrocery(id) {
-  if (!confirm('Delete this grocery item?')) return;
+      await request(`/api/groceries/${item.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          item_name,
+          quantity,
+          purchased: item.purchased === 1
+        })
+      });
 
-  await request(`/api/groceries/${id}`, {
-    method: 'DELETE'
-  });
-  loadGroceries();
-}
+      loadGroceries();
+      loadDashboard();
+    }
 
+    async function deleteGrocery(id) {
+      if (!confirm('Delete this grocery item?')) return;
 
-async function editGrocery(id, name, quantity, purchased) {
-  const newName = prompt('Edit item name:', name);
-  if (newName === null) return;
+      await request(`/api/groceries/${id}`, {
+        method: 'DELETE'
+      });
 
-  const newQty = prompt('Edit quantity:', quantity);
+      loadGroceries();
+      loadDashboard();
+    }
 
-  await request(`/api/groceries/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      item_name: newName,
-      quantity: newQty,
-      purchased
-    })
-  });
-
-  loadGroceries();
-}
-
-
+    // ======================
+    // NOTIFICATIONS
+    // ======================
     async function addNotification(event) {
       event.preventDefault();
+
       await request('/api/notifications', {
         method: 'POST',
         body: JSON.stringify({
@@ -419,14 +735,23 @@ async function editGrocery(id, name, quantity, purchased) {
           type: document.getElementById('notification-type').value
         })
       });
+
+      event.target.reset();
       loadNotifications();
+      loadDashboard();
     }
 
     async function loadNotifications() {
       const notifications = await request('/api/notifications');
-      document.getElementById('notification-list').innerHTML = notifications.map(note =>
-        `<li><strong>${note.type}</strong> - ${note.message}</li>`
-      ).join('');
+      const list = document.getElementById('notification-list');
+
+      list.innerHTML = '';
+
+      notifications.forEach(note => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${note.type}</strong> — ${note.message}`;
+        list.appendChild(li);
+      });
     }
 
     async function generateGroceryReminders() {
@@ -436,6 +761,7 @@ async function editGrocery(id, name, quantity, purchased) {
 
       alert('Grocery reminder notifications generated.');
       loadNotifications();
+      loadDashboard();
     }
 
     async function generateChoreReminders() {
@@ -445,144 +771,54 @@ async function editGrocery(id, name, quantity, purchased) {
 
       alert('Chore reminder notifications generated.');
       loadNotifications();
+      loadDashboard();
     }
 
     async function generateExpenseReminders() {
-      console.log('EXPENSE REMINDER FUNCTION CALLED');
-      
       await request('/api/notifications/expense-reminders', {
         method: 'POST'
       });
 
       alert('Expense reminder notifications generated.');
       loadNotifications();
+      loadDashboard();
     }
 
+    // ======================
+    // DASHBOARD
+    // ======================
     async function loadDashboard() {
-  const dashboard = await request('/api/dashboard');
-  const summary = dashboard.summary || {};
+      const dashboard = await request('/api/dashboard');
+      const summary = dashboard.summary || {};
 
-  document.getElementById('total-chores').textContent = summary.totalChores || 0;
-  document.getElementById('completed-chores').textContent = summary.completedChores || 0;
-  document.getElementById('pending-chores').textContent = summary.pendingChores || 0;
-  document.getElementById('total-expenses').textContent = summary.totalExpenses || 0;
-  document.getElementById('dashboard-expense-amount').textContent = `$${Number(summary.totalExpenseAmount || 0).toFixed(2)}`;
-  document.getElementById('total-groceries').textContent = summary.totalGroceries || 0;
-  document.getElementById('purchased-groceries').textContent = summary.purchasedGroceries || 0;
-  document.getElementById('total-notifications').textContent = summary.totalNotifications || 0;
+      document.getElementById('total-chores').textContent = summary.totalChores || 0;
+      document.getElementById('completed-chores').textContent = summary.completedChores || 0;
+      document.getElementById('pending-chores').textContent = summary.pendingChores || 0;
+      document.getElementById('total-expenses').textContent = summary.totalExpenses || 0;
+      document.getElementById('dashboard-expense-amount').textContent = formatMoney(summary.totalExpenseAmount || 0);
+      document.getElementById('total-groceries').textContent = summary.totalGroceries || 0;
+      document.getElementById('purchased-groceries').textContent = summary.purchasedGroceries || 0;
+      document.getElementById('total-notifications').textContent = summary.totalNotifications || 0;
 
-  document.getElementById('dashboard-chores').innerHTML = (dashboard.chores || [])
-    .map(chore => `<li><strong>${chore.title}</strong> - ${chore.status}</li>`)
-    .join('');
+      document.getElementById('dashboard-chores').innerHTML = (dashboard.chores || [])
+        .map(chore => `<li><strong>${chore.title}</strong> — ${chore.status}</li>`)
+        .join('');
 
-  document.getElementById('dashboard-expenses').innerHTML = (dashboard.expenses || [])
-    .map(expense => `<li><strong>${expense.title}</strong> - $${expense.amount}</li>`)
-    .join('');
+      document.getElementById('dashboard-expenses').innerHTML = (dashboard.expenses || [])
+        .map(expense => `<li><strong>${expense.title}</strong> — ${formatMoney(expense.amount)}</li>`)
+        .join('');
 
-  document.getElementById('dashboard-groceries').innerHTML = (dashboard.groceries || [])
-    .map(item => `<li><strong>${item.item_name}</strong> - ${item.quantity || 'No quantity'}</li>`)
-    .join('');
+      document.getElementById('dashboard-groceries').innerHTML = (dashboard.groceries || [])
+        .map(item => `<li><strong>${item.item_name}</strong> — ${item.quantity || 'No quantity'}</li>`)
+        .join('');
 
-  document.getElementById('dashboard-notifications').innerHTML = (dashboard.notifications || [])
-    .map(note => `<li><strong>${note.type}</strong> - ${note.message}</li>`)
-    .join('');
-}
+      document.getElementById('dashboard-notifications').innerHTML = (dashboard.notifications || [])
+        .map(note => `<li><strong>${note.type}</strong> — ${note.message}</li>`)
+        .join('');
+    }
+
+    loadDashboard();
   </script>
 </body>
-<section id="chores-tab">
-  <h2>Chores</h2>
-
-  <form id="addChoreForm">
-    <input id="choreName" placeholder="Chore name" required>
-    <input id="assignedTo" placeholder="Assigned to">
-    <button type="submit">Add Chore</button>
-  </form>
-
-  <br>
-
-  <form id="editChoreForm">
-    <input id="editId" placeholder="Chore ID to edit" required>
-    <input id="newName" placeholder="New name">
-    <input id="newAssigned" placeholder="New assigned person">
-    <button type="submit">Edit Chore</button>
-  </form>
-
-  <ul id="choreList"></ul>
-
-  <script>
-    async function loadChores() {
-      try {
-        const res = await fetch('/api/chores');
-        const chores = await res.json();
-        const list = document.getElementById('choreList');
-        list.innerHTML = '';
-
-        chores.forEach(chore => {
-          const li = document.createElement('li');
-          li.innerHTML = `
-            ID: ${chore.id} | ${chore.name} - ${chore.assignedTo || 'Unassigned'}
-            (${chore.completed ? " ü  Done" : "x Pending"})
-            <button onclick="completeChore(${chore.id})">Complete</button>
-            <button onclick="deleteChore(${chore.id})">Delete</button>
-          `;
-          list.appendChild(li);
-        });
-      } catch (err) {
-        console.error('Error loading chores:', err);
-      }
-    }
-
-    async function addChore(event) {
-      event.preventDefault();
-      const name = document.getElementById('choreName').value;
-      const assignedTo = document.getElementById('assignedTo').value;
-
-      await fetch('/api/chores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, assignedTo })
-      });
-
-      document.getElementById('addChoreForm').reset();
-      loadChores();
-    }
-
-    async function editChore(event) {
-      event.preventDefault();
-      const id = document.getElementById('editId').value;
-      const name = document.getElementById('newName').value;
-      const assignedTo = document.getElementById('newAssigned').value;
-
-      await fetch(`/api/chores/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, assignedTo })
-      });
-
-      document.getElementById('editChoreForm').reset();
-      loadChores();
-    }
-
-    async function completeChore(id) {
-      await fetch(`/api/chores/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ completed: true })
-      });
-      loadChores();
-    }
-
-    async function deleteChore(id) {
-      await fetch(`/api/chores/${id}`, { method: 'DELETE' });
-      loadChores();
-    }
-
-    // Attach event listeners
-    document.getElementById('addChoreForm').addEventListener('submit', addChore);
-    document.getElementById('editChoreForm').addEventListener('submit', editChore);
-
-    // Load chores on page load
-    loadChores();
-  </script>
-</section>
+</html>
 
